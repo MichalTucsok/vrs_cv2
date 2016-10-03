@@ -38,6 +38,14 @@ SOFTWARE.
 /* Private function prototypes */
 /* Private functions */
 
+void delay(uint32_t cas)
+{
+	uint32_t i;
+	for(i=0;i<cas;i++)
+	{
+
+	}
+}
 
 /**
 **===========================================================================
@@ -48,30 +56,52 @@ SOFTWARE.
 */
 int main(void)
 {
-
+	uint8_t button;
 
 	//nastavenie vystupu pre LED
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
 
 	GPIOA->MODER |=(0b01)<<(5*2);
 	GPIOA->OTYPER &= ~((0b1)<<5);
 	GPIOA->PUPDR |= (0b01)<<(5*2);
 	GPIOA->OSPEEDR |= (0b11)<<(5*2);
 
+	//nastavenie vstupu pre button
+	GPIOC->MODER &= ~((0b11)<<(13*2));
+	GPIOC->OTYPER &= ~((0b1)<<13);
+	GPIOC->PUPDR &=  ~(0b11<<(13*2));
 
+	GPIOA->ODR |= 0b1<<5;
+	GPIOA->ODR &= ~(0b1<<5);
+	GPIOA->BSRRL |= 0b1<<5;
+	GPIOA->BSRRH |= 0b1<<5;
+
+	GPIOA->ODR ^= 0b1<<5; //zmena stavu LED (zapnute)
+	GPIOA->ODR ^= 0b1<<5; //zmena stavu LED (vypnute)
 
 
   while (1)
   {
+	  button = (GPIOC->IDR & (0b1<<13))>>13;
 
+	  if(button==0)
+	  {
+		  GPIOA->ODR |= 0b1<<5;
+	  }
+	  else
+	  {
+		  GPIOA->ODR &= ~(0b1<<5);
 	  }
 
-
+	  /*zapni LED
+	  delay(1000000);
+	  vypni LED
+	  delay(1000000);*/
 
   }
-
-
+  return 0;
+}
 
 #ifdef  USE_FULL_ASSERT
 
